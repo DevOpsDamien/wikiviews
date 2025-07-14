@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Useless Comparator</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4a6fa5;
+      --secondary: #166088;
+      --accent: #4cb5ae;
+      --light: #e8f1f5;
+      --dark: #1e3d59;
+      --success: #47c9a2;
+      --danger: #ff6b6b;
+      --neutral: #f5f5f5;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--secondary);
+      margin-bottom: 1.5rem;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    #btn-new-round {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    #btn-new-round:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    #btn-new-round:active {
+      transform: translateY(0);
+    }
+    
+    .score-container {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .score-badge {
+      padding: 0.6rem 1rem;
+      background-color: white;
+      border-radius: 50px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .current-score {
+      color: var(--primary);
+    }
+    
+    .best-score {
+      color: var(--success);
+    }
+    
+    #game-area {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin: 2rem 0;
+      min-height: 300px;
+    }
+    
+    .page-card {
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      width: 320px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      position: relative;
+      animation: slideIn 0.5s ease-out;
+    }
+    
+    .page-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .page-image {
+      width: 100%;
+      height: 180px;
+      background-color: var(--neutral);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .page-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .page-card:hover .page-image img {
+      transform: scale(1.05);
+    }
+    
+    .page-title {
+      padding: 1.2rem;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--dark);
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+    
+    .loader-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      color: var(--primary);
+    }
+    
+    #result {
+      margin-top: 1.5rem;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s, transform 0.5s;
+      max-width: 100%;
+    }
+    
+    #result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    #result.success {
+      background-color: rgba(71, 201, 162, 0.15);
+      color: var(--success);
+      border-left: 4px solid var(--success);
+    }
+    
+    #result.error {
+      background-color: rgba(255, 107, 107, 0.15);
+      color: var(--danger);
+      border-left: 4px solid var(--danger);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin: 0 0.2rem;
+    }
+    
+    .badge-views {
+      background-color: rgba(74, 111, 165, 0.15);
+      color: var(--primary);
+    }
+    
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      color: var(--secondary);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .winner {
+      position: relative;
+      animation: pulse 1s infinite;
+    }
+    
+    .winner::after {
+      content: "★";
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      background-color: var(--success);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      animation: fadeIn 0.5s;
+    }
+    
+    .loser {
+      opacity: 0.7;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .stat-card {
+      padding: 1rem 1.5rem;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      animation: fadeIn 0.5s;
+    }
+    
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--secondary);
+      margin-bottom: 0.3rem;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--dark);
+    }
+    
+    .initial-message {
+      padding: 2rem;
+      text-align: center;
+      color: var(--secondary);
+      font-size: 1.1rem;
+    }
+    
+    @media (max-width: 768px) {
+      #game-area {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .page-card {
+        width: 100%;
+        max-width: 320px;
+      }
+      
+      .header-controls {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Useless Comparator</h1>
+      <p class="subtitle">Devinez quelle page Wikipédia a le plus de vues ces 30 derniers jours! </p>      
+      <div class="header-controls">
+        <button id="btn-new-round">
+          <i class="fas fa-dice"></i> Nouvelle Manche
+        </button>
+        
+        <div class="score-container">
+          <div class="score-badge current-score">
+            <i class="fas fa-trophy"></i> Score: <span id="score-value">0</span>
+          </div>
+          <div class="score-badge best-score">
+            <i class="fas fa-crown"></i> Meilleur: <span id="best-score-value">0</span>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <div id="game-area">
+      <!-- Le jeu s'affichera ici -->
+      <div class="initial-message">
+        <i class="fas fa-hand-point-up" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <p>Cliquez sur "Nouvelle Manche" pour commencer à jouer</p>
+      </div>
+    </div>
+    
+    <div id="result"></div>
+    
+    <div class="stats" id="stats-container" style="display: none;">
+      <!-- Les statistiques s'afficheront ici -->
+    </div>
+  </div>
+  
+  <footer>
+    © 2025 Useless Comparator - Un jeu de comparaison de popularité de pages Wikipédia
+  </footer>
+  
+  <script>
+    const newRoundBtn = document.getElementById("btn-new-round");
+    const gameArea = document.getElementById("game-area");
+    const resultDiv = document.getElementById("result");
+    const scoreValue = document.getElementById("score-value");
+    const bestScoreValue = document.getElementById("best-score-value");
+    const statsContainer = document.getElementById("stats-container");
+    
+    let currentRoundId = null;
+    let pages = [];
+    let currentScore = 0;
+    let bestScore = 0;
+    
+    // Fonction pour formater le nombre de vues avec des séparateurs de milliers
+    function formatNumber(num) {
+      return new Intl.NumberFormat('fr-FR').format(num);
+    }
+    
+    // Fonction pour mettre à jour les scores
+    function updateScores(correct) {
+      if (correct) {
+        currentScore++;
+        if (currentScore > bestScore) {
+          bestScore = currentScore;
+          bestScoreValue.textContent = bestScore;
+          // Animation pour le meilleur score
+          bestScoreValue.parentElement.classList.add('pulse');
+          setTimeout(() => {
+            bestScoreValue.parentElement.classList.remove('pulse');
+          }, 1000);
+        }
+      } else {
+        // Réinitialiser le score courant en cas d'erreur
+        currentScore = 0;
+      }
+      scoreValue.textContent = currentScore;
+    }
+    
+    // Obtenir une image pour une page Wikipédia
+    async function getWikipediaImage(title) {
+      try {
+        // Encodage du titre pour l'URL
+        const encodedTitle = encodeURIComponent(title);
+        
+        // API Wikipédia pour obtenir les images
+        const url = `https://fr.wikipedia.org/api/rest_v1/page/summary/${encodedTitle}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // Si on a une miniature dans la réponse, on l'utilise
+        if (data.thumbnail && data.thumbnail.source) {
+          return data.thumbnail.source;
+        }
+        
+        // Sinon on utilise une image générique basée sur la première lettre du titre
+        const firstLetter = title.charAt(0).toUpperCase();
+        return `https://via.placeholder.com/320x180/4a6fa5/ffffff?text=${firstLetter}`;
+      } catch (error) {
+        console.error("Erreur lors de la récupération de l'image:", error);
+        // Image par défaut en cas d'erreur
+        return `https://via.placeholder.com/320x180/4a6fa5/ffffff?text=${title.charAt(0).toUpperCase()}`;
+      }
+    }
+    
+    // Requête GET /api/round pour obtenir 2 pages
+    newRoundBtn.addEventListener("click", async () => {
+      // Réinitialiser l'affichage
+      resultDiv.className = "";
+      resultDiv.textContent = "";
+      statsContainer.style.display = "none";
+      
+      // Afficher le chargement
+      gameArea.innerHTML = `
+        <div class="loader-container">
+          <div class="spinner"></div>
+          <p>Chargement des pages Wikipédia...</p>
+        </div>
+      `;
+      
+      try {
+        const resp = await fetch("/api/round");
+        if (!resp.ok) {
+          throw new Error("Erreur lors de la récupération des pages");
+        }
+        
+        const data = await resp.json();
+        currentRoundId = data.roundId;
+        pages = data.pages; // ex: ["Napoléon", "Tour_Eiffel"]
+        
+        // Vider la zone de jeu
+        gameArea.innerHTML = "";
+        
+        // Création des cartes avec chargement d'images asynchrone
+        for (let i = 0; i < pages.length; i++) {
+          const title = pages[i];
+          const formattedTitle = title.replace(/_/g, " ");
+          
+          // Créer une carte temporaire pendant le chargement de l'image
+          const tempCard = document.createElement("div");
+          tempCard.className = "page-card";
+          tempCard.innerHTML = `
+            <div class="page-image">
+              <div class="spinner"></div>
+            </div>
+            <div class="page-title">${formattedTitle}</div>
+          `;
+          gameArea.appendChild(tempCard);
+          
+          // Charger l'image en arrière-plan
+          getWikipediaImage(title).then(imageUrl => {
+            // Mettre à jour la carte avec l'image chargée
+            tempCard.innerHTML = `
+              <div class="page-image">
+                <img src="${imageUrl}" alt="${formattedTitle}" />
+              </div>
+              <div class="page-title">${formattedTitle}</div>
+            `;
+            
+            // Ajouter l'événement de clic
+            tempCard.addEventListener("click", () => guess(title, tempCard));
+          });
+        }
+        
+      } catch (err) {
+        gameArea.innerHTML = `
+          <div class="error-message">
+            <i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--danger);"></i>
+            <p style="margin-top: 1rem;">Erreur: ${err.message}</p>
+            <p style="margin-top: 0.5rem;">Veuillez réessayer.</p>
+          </div>
+        `;
+      }
+    });
+    
+    // Quand l'utilisateur choisit une page
+    async function guess(choice, clickedCard) {
+      if (!currentRoundId) return;
+      
+      // Effet visuel de sélection
+      const cards = document.querySelectorAll(".page-card");
+      cards.forEach(card => {
+        card.style.pointerEvents = "none"; // Désactiver les clics
+        card.style.opacity = "0.7"; // Rendre toutes les cartes un peu transparentes
+      });
+      
+      clickedCard.style.opacity = "1"; // Remettre la carte cliquée à pleine opacité
+      clickedCard.style.transform = "scale(1.05)"; // L'agrandir légèrement
+      
+      try {
+        const resp = await fetch("/api/guess", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            roundId: currentRoundId,
+            choice: choice
+          })
+        });
+        
+        if (!resp.ok) {
+          throw new Error("Erreur lors de la soumission de votre choix");
+        }
+        
+        const data = await resp.json();
+        /*
+          data = {
+            correct: true/false,
+            pageA: "Napoléon",
+            viewsA: 50000,
+            pageB: "Tour_Eiffel",
+            viewsB: 45000
+          }
+        */
+        
+        // Déterminer quelle page a le plus de vues
+        const winningPage = data.viewsA >= data.viewsB ? data.pageA : data.pageB;
+        const winningViews = data.viewsA >= data.viewsB ? data.viewsA : data.viewsB;
+        const losingPage = data.viewsA >= data.viewsB ? data.pageB : data.pageA;
+        const losingViews = data.viewsA >= data.viewsB ? data.viewsB : data.viewsA;
+        
+        // Mettre à jour le score
+        updateScores(data.correct);
+        
+        // Afficher le résultat
+        resultDiv.className = data.correct ? "show success" : "show error";
+        resultDiv.innerHTML = data.correct 
+          ? `<i class="fas fa-check-circle"></i> Bravo ! Vous avez choisi la page la plus populaire.`
+          : `<i class="fas fa-times-circle"></i> Raté ! La page la plus populaire était ${winningPage.replace(/_/g, " ")}. Votre série est terminée.`;
+        
+        // Afficher les statistiques de vues
+        statsContainer.style.display = "flex";
+        statsContainer.innerHTML = `
+          <div class="stat-card ${data.viewsA >= data.viewsB ? 'winner' : ''}">
+            <div class="stat-label">${data.pageA.replace(/_/g, " ")}</div>
+            <div class="stat-value">${formatNumber(data.viewsA)} vues</div>
+          </div>
+          <div class="stat-card ${data.viewsB > data.viewsA ? 'winner' : ''}">
+            <div class="stat-label">${data.pageB.replace(/_/g, " ")}</div>
+            <div class="stat-value">${formatNumber(data.viewsB)} vues</div>
+          </div>
+        `;
+        
+        // Ajouter des effets visuels pour montrer le gagnant et le perdant
+        cards.forEach(card => {
+          const cardTitle = card.querySelector(".page-title").textContent.trim();
+          
+          if (cardTitle === winningPage.replace(/_/g, " ")) {
+            card.classList.add("winner");
+          } else {
+            card.classList.add("loser");
+          }
+        });
+        
+        // Réinitialiser l'ID de la manche
+        currentRoundId = null;
+        
+      } catch (err) {
+        resultDiv.className = "show error";
+        resultDiv.textContent = "Erreur: " + err.message;
+      }
+    }
+    
+    // Initialiser les scores au chargement de la page
+    document.addEventListener('DOMContentLoaded', () => {
+      scoreValue.textContent = currentScore;
+      bestScoreValue.textContent = bestScore;
+    });
+  </script>
+</body>
+</html>

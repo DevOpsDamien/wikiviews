@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "type": "person",
+    "title": "Napoléon Bonaparte",
+    "date_start": 1769,
+    "date_end": 1821,
+    "description": "Empereur des Français, figure majeure des guerres napoléoniennes",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Napoleon_crop.png",
+    "source_url": "https://fr.wikipedia.org/wiki/Napoléon_Ier"
+  },
+  {
+    "id": 2,
+    "type": "invention",
+    "title": "Premier moteur à combustion interne",
+    "date_start": 1807,
+    "date_end": 1807,
+    "description": "Invention de François Isaac de Rivaz",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/First_internal_combustion_engine.png",
+    "source_url": "https://fr.wikipedia.org/wiki/Moteur_à_combustion_interne"
+  },
+  {
+    "id": 3,
+    "type": "flag",
+    "title": "Drapeau des États-Unis",
+    "date_start": 1777,
+    "date_end": 1777,
+    "description": "Adopté en 1777, un an après la déclaration d'indépendance",
+    "image_url": "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
+    "source_url": "https://fr.wikipedia.org/wiki/Drapeau_des_États-Unis"
+  }
+]
+
