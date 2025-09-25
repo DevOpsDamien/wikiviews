@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    cert-manager.io/issuer: letsencrypt-production
+
+spec:
+  ingressClassName: traefik
+
+  tls:
+  - hosts:
+    - wikigame.h2odevops.com
+    secretName: app-cert    # <-- On met le même nom que le secret existant
+
+  rules:
+  - host: wikigame.h2odevops.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wikiviews-service
+            port:
+              number: 80
