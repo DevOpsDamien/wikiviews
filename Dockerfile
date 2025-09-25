@@ -1,18 +1,21 @@
 FROM python:3.9-slim
 
-# 2) Créer un dossier d’appli
+# 1) Créer le dossier de travail
 WORKDIR /app
 
-# 3) Installer les dépendances
-COPY requirements.txt ./
+# 2) Installer dépendances
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4) Copier le reste du code
-COPY . .
+# 3) Copier le backend
+COPY app/ .
 
-# 5) Exposer le port 8000
+# 4) Copier le frontend (sera servi par FastAPI via StaticFiles)
+COPY client/ ./client/
+
+# 5) Exposer le port
 EXPOSE 8000
 
-# 6) Lancer l’appli via uvicorn
+# 6) Lancer l’app
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
