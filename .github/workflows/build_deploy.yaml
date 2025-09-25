@@ -1,0 +1,44 @@
+name: Build and Deploy Wikiviews to K3s
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, lab, AMD64]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push Wikiviews Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/wikiviews:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/wikiviews:${{ github.sha }}
+
+    - name: Set up kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+
+    - name: Check cluster connection
+      run: kubectl cluster-info
+
+    - name: Deploy Wikiviews
+      run: |
+        kubectl set image deployment/wikiviews \
+          wikiviews=${{ secrets.DOCKERHUB_USERNAME }}/wikiviews:${{ github.sha }} -n default
+        kubectl rollout status deployment/wikiviews -n default --timeout=120s
+
